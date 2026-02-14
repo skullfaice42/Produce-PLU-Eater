@@ -172,6 +172,16 @@
 .add-btn:hover {
   background: #ff5252;
 }
+#watermark {
+  position: absolute;      /* fixes it relative to the viewport */
+  bottom: 0px;            /* distance from bottom */
+  right: 0px;             /*distance from right*/
+  height: 10vh;            /* 20% of viewport height */
+  width: auto;             /* maintain aspect ratio */
+  opacity: 0.06;            /* subtle watermark */
+  pointer-events: none;    /* won’t block clicks */
+  z-index: 1;              /* behind container if needed */
+}
 
 
 </style>
@@ -190,6 +200,7 @@
   <ul id="scanned-items"></ul>
   <button id="refresh-btn">Refresh Session</button>
 </div>
+<img src="dango.png" alt="Watermark" id="watermark">
 
 <script>
 // ---------------- Background Cycling ----------------
