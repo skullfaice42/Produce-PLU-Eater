@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Jeremy's PLU List</title>
+<style>
+  body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background: url('background/1.png') no-repeat center center fixed;
+    background-size: cover;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    transition: background 0.5s ease;
+  }
+
+  .container {
+    position: relative; /* needed for Safe button positioning */
+    background: rgba(255, 255, 255, 0.95);
+    width: 400px;
+    padding: 30px 25px;
+    border-radius: 20px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+    display: flex;
+    
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  h1 {
+    font-size: 20px;
+    margin: 0 0 10px 0;
+    text-align: center;
+  }
+
+  #search-bar {
+    width: 100%;
+    padding: 12px 15px;
+    border-radius: 15px;
+    border: 1px solid #ccc;
+    font-size: 16px;
+    box-sizing: border-box;
+  }
+
+  ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    max-height: 200px;
+    overflow-y: auto;
+    border-radius: 10px;
+  }
+
+  li {
+    padding: 10px;
+    margin-bottom: 5px;
+    background: #f7f7f7;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+
+  li:hover {
+    background: #d3f3ff;
+  }
+
+  #scanned-items li {
+    background: #fff7d3;
+    cursor: default;
+  }
+
+  #refresh-btn {
+    padding: 12px 20px;
+    border: none;
+    border-radius: 50px;
+    background: #ff7b7b;
+    color: #fff;
+    font-size: 16px;
+    cursor: pointer;
+    align-self: center;
+    transition: background 0.2s ease;
+  }
+
+  #refresh-btn:hover {
+    background: #ff5252;
+  }
+
+  .number-input {
+    width: 60px;
+    font-size: 16px;
+    padding: 5px;
+    margin-left: 10px;
+  }
+
+  /* Safe button */
+  #safe-btn {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    padding: 6px 12px;
+    font-size: 12px;
+    border: none;
+    border-radius: 8px;
+    background: #7b7bff;
+    color: #fff;
+    cursor: pointer;
+    z-index: 10;
+    transition: background 0.2s ease;
+  }
+
+  #safe-btn:hover {
+    background: #5252ff;
+  }
+
+    #hide-btn {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    padding: 6px 12px;
+    font-size: 12px;
+    border: none;
+    border-radius: 8px;
+    background: #7d7e7e;
+    color: #fff;
+    cursor: pointer;
+    z-index: 10;
+    transition: background 0.2s ease;
+    }
+
+    #hide-btn:hover {
+    background: #52ff52;
+    }
+
+
+</style>
+</head>
+<body>
+
+<div class="container">
+    <button id="hide-btn">Hide</button>
+
+  <button id="safe-btn">Safe</button>
+
+  <h1>Jeremy's List</h1>
+  <input type="text" id="search-bar" placeholder="Type PLU or name..." autocomplete="off" />
+  <ul id="search-results"></ul>
+  <h3>Scanned Out</h3>
+  <ul id="scanned-items"></ul>
+  <button id="refresh-btn">Refresh Session</button>
+</div>
+
+<script>
+// ---------------- Background Cycling ----------------
+const body = document.body;
+let safeMode = false;
+let bgImages = [];
+let currentBgIndex = 0;
+
+// Load images dynamically (1.png, 2.png, ..., max 50)
+(function loadBackgrounds() {
+  for (let i = 1; i <= 50; i++) {
+    const img = new Image();
+    img.src = `background/${i}.png`;
+    img.onload = () => {
+      bgImages.push(img.src);
+    };
+  }
+})();
+
+function setRandomBackground() {
+  if (!safeMode && bgImages.length > 0) {
+    const index = Math.floor(Math.random() * bgImages.length);
+    body.style.backgroundImage = `url('${bgImages[index]}')`;
+  }
+}
+
+// Initial random background
+setTimeout(setRandomBackground, 500);
+
+// Safe button toggle
+const safeBtn = document.getElementById("safe-btn");
+safeBtn.addEventListener("click", () => {
+  safeMode = !safeMode;
+  if (safeMode) {
+    body.style.backgroundImage = "url('background/safe.png')";
+  } else {
+    setRandomBackground();
+  }
+});
+
+// ---------------- Produce List ----------------
+const produceList = [
+  { name: "Organic Avocado", plu: "94281", type: "ea" },
+  { name: "Avocado", plu: "4700", type: "ea" },
+  { name: "Banana", plu: "4011", type: "lb" },
+  { name: "Organic Banana", plu: "94011", type: "lb" },
+  { name: "Mango", plu: "4051", type: "lb" },
+  { name: "Organic Mango", plu: "94051", type: "lb" },
+
+    { name: "Squash Assorted", plu: "4787", type: "ea" },
+    { name: "Squash Mexican Grey", plu: "4786", type: "ea" },
+    { name: "Squash Acorn", plu: "4750", type: "ea" },
+    { name: "Squash Butternut", plu: "4759", type: "ea" },
+    { name: "Squash Chayote", plu: "4761", type: "ea" },
+    { name: "Squash Spaghetti", plu: "4776", type: "ea" },
+    { name: "Squash Yellow", plu: "4784", type: "ea" },
+    { name: "Tomato OTV", plu: "4664", type: "lb" },
+    { name: "Tomato Vine Ripe", plu: "3151", type: "lb" },
+    { name: "Tomato Roma", plu: "4087", type: "lb" },
+    { name: "Tomato", plu: "4064", type: "lb" },
+    { name: "Tomato Hot House", plu: "4799", type: "lb" },
+    { name: "Tomatillo", plu: "4801", type: "lb" },
+    { name: "Tomato Green", plu: "4798", type: "lb" },
+    { name: "Tomato Beefsteak", plu: "3061", type: "lb" },
+    { name: "Tomato Cluster OTV Orange", plu: "3149", type: "lb" },
+    { name: "Tomato Cluster OTV Yellow", plu: "3148", type: "lb" },
+
+    { name: "Pumpkin Mini", plu: "4734", type: "ea" },
+    { name: "Pumpkin Pie Quality", plu: "3134", type: "ea" },
+    { name: "Pumpkin Tiger Stripe", plu: "4736", type: "ea" },
+    { name: "Pumpkin White", plu: "3132", type: "ea" },
+    { name: "Pumpkin Fall Fantasy", plu: "4760", type: "ea" },
+    { name: "Pumpkin Fall Fantasy", plu: "3235", type: "ea" },
+    { name: "Pumpkin", plu: "4735", type: "ea" },
+    { name: "Pumpkin Big Mac", plu: "4737", type: "ea" },
+    { name: "Pumpkin Casperita", plu: "3133", type: "ea" },
+    { name: "Pumpkin Cinderella", plu: "3631", type: "ea" },
+    { name: "Pumpkin Large", plu: "4467", type: "ea" },
+    { name: "Eggplant", plu: "4081", type: "lb" },
+    { name: "Squash Italian Zucchini", plu: "4067", type: "lb" },
+
+    { name: "Apple Cosmic Crisp", plu: "3507", type: "lb" },
+    { name: "Apple Fuji", plu: "4131", type: "lb" },
+    { name: "Apple Gala", plu: "4135", type: "lb" },
+    { name: "Apple Gold", plu: "4021", type: "lb" },
+    { name: "Apple Granny Smith", plu: "4017", type: "lb" },
+    { name: "Apple Honeycrisp", plu: "3283", type: "lb" },
+    { name: "Apple Jazz", plu: "3294", type: "lb" },
+    { name: "Apple Jonagold", plu: "4146", type: "lb" },
+    { name: "Apple Opal", plu: "3618", type: "lb" },
+    { name: "Apple Pink Lady", plu: "4130", type: "lb" },
+    { name: "Apple Red Del", plu: "4016", type: "lb" },
+    { name: "Apple Rome", plu: "4171", type: "lb" },
+    { name: "Apple Ambrosia", plu: "3510", type: "lb" },
+    { name: "Sugarbee Apple", plu: "3486", type: "lb" },
+    { name: "Pear Anjou", plu: "4416", type: "lb" },
+    { name: "Pear Asian", plu: "4408", type: "lb" },
+    { name: "Pear Bartlett", plu: "4409", type: "lb" },
+    { name: "Pear Bosc", plu: "4411", type: "lb" },
+    { name: "Pear Comice", plu: "4414", type: "lb" },
+    { name: "Pear Red", plu: "4410", type: "lb" },
+    { name: "Banana Loose", plu: "4011", type: "lb" },
+    { name: "Organic Banana Loose", plu: "94011", type: "lb" },
+    { name: "Dragon Fruit", plu: "4030", type: "ea" },
+    { name: "Dragon Fruit Yellow", plu: "3319", type: "ea" },
+    { name: "Guava", plu: "4299", type: "lb" },
+    { name: "Kiwi", plu: "4030", type: "lb" },
+    { name: "Mango", plu: "4051", type: "lb" },
+    { name: "Mango Honey/Ataulfo", plu: "4312", type: "lb" },
+    { name: "Papaya/Maradol", plu: "4394", type: "lb" },
+    { name: "Passion Fruit", plu: "4398", type: "ea" },
+    { name: "Persimmon", plu: "4427", type: "lb" },
+    { name: "Persimmon Fuyu", plu: "4428", type: "lb" },
+    { name: "Pineapple", plu: "4432", type: "ea" },
+    { name: "Plantain Loose", plu: "4235", type: "lb" },
+    { name: "Coconut Brown", plu: "4260", type: "ea" },
+    { name: "Coconut White", plu: "4261", type: "ea" },
+    { name: "Coconut Green", plu: "4262", type: "ea" },
+    { name: "Pomegranate", plu: "3127", type: "ea" },
+
+    { name: "Cherry", plu: "4045", type: "lb" },
+    { name: "Cherry Rainier", plu: "4258", type: "lb" },
+    { name: "Grape Black", plu: "3497", type: "lb" },
+    { name: "Grape Cotton Candy", plu: "3501", type: "lb" },
+    { name: "Grape Green", plu: "4022", type: "lb" },
+    { name: "Grape Red", plu: "4023", type: "lb" },
+    { name: "Grapefruit Red", plu: "4298", type: "lb" },
+    { name: "Lemon", plu: "4304", type: "lb" },
+    { name: "Lime", plu: "4305", type: "lb" },
+    { name: "Orange Blood", plu: "4381", type: "lb" },
+    { name: "Orange Navel", plu: "3107", type: "lb" },
+    { name: "Orange Valencia", plu: "4388", type: "lb" },
+    { name: "Pummelo", plu: "4279", type: "lb" },
+    { name: "Mandarin Tangelo Minneola", plu: "4383", type: "lb" },
+    { name: "Tangerines Clementine", plu: "4450", type: "lb" },
+    { name: "Tangerines Satsuma", plu: "3029", type: "lb" },
+    { name: "Tangerines Sumo", plu: "3632", type: "lb" },
+    { name: "Cantaloupe", plu: "4050", type: "lb" },
+    { name: "Honeydew", plu: "4329", type: "lb" },
+    { name: "Honeydew Golden", plu: "4317", type: "lb" },
+    { name: "Watermelon Baby", plu: "3421", type: "lb" },
+    { name: "Watermelon SDLS", plu: "4032", type: "lb" },
+    { name: "Watermelon Seeded", plu: "4031", type: "lb" },
+    { name: "Apricot", plu: "4218", type: "lb" },
+    { name: "Aprium", plu: "3422", type: "lb" },
+    { name: "Nectarine", plu: "4036", type: "lb" },
+    { name: "Nectarine White", plu: "4188", type: "lb" },
+    { name: "Peach", plu: "4404", type: "lb" },
+    { name: "Peach Doughnut Yellow/White", plu: "3113", type: "lb" },
+    { name: "Peach White", plu: "4401", type: "lb" },
+    { name: "Plum Black", plu: "4040", type: "lb" },
+    { name: "Plum Red", plu: "4042", type: "lb" },
+    { name: "Plumcot", plu: "3278", type: "lb" },
+    { name: "Organic Grape Green", plu: "94498", type: "lb" },
+    { name: "Organic Grape Red", plu: "94635", type: "lb" },
+
+    { name: "Garlic", plu: "4609", type: "lb" },
+    { name: "Onion Green", plu: "4660", type: "lb" },
+    { name: "Leek", plu: "4629", type: "lb" },
+    { name: "Onion Red", plu: "4082", type: "lb" },
+    { name: "Onion Spring Mexican", plu: "4659", type: "lb" },
+    { name: "Onion Sweet", plu: "4166", type: "lb" },
+    { name: "Onion Yellow", plu: "4093", type: "lb" },
+    { name: "Onion White", plu: "4663", type: "lb" },
+    { name: "Pepper Pasilla/Poblano", plu: "4701", type: "lb" },
+    { name: "Pepper Bell Green", plu: "4716", type: "lb" },
+    { name: "Pepper Bell Orange", plu: "3121", type: "lb" },
+    { name: "Pepper Bell Red", plu: "4088", type: "lb" },
+    { name: "Pepper Bell Stripe Aloha", plu: "3465", type: "lb" },
+    { name: "Pepper Bell Yellow", plu: "4689", type: "lb" },
+    { name: "Pepper Anaheim", plu: "4677", type: "lb" },
+    { name: "Chili Hatch Hot", plu: "4700", type: "lb" },
+    { name: "Chili Hatch Mild", plu: "4677", type: "lb" },
+    { name: "Pepper Jalapeno", plu: "4693", type: "lb" },
+    { name: "Pepper Serrano", plu: "4709", type: "lb" },
+    { name: "Potato Red", plu: "4073", type: "lb" },
+    { name: "Potato Russet", plu: "4727", type: "lb" },
+    { name: "Potato Sweet", plu: "4816", type: "lb" },
+    { name: "Potato White", plu: "4083", type: "lb" },
+    { name: "Potato Sweet Orange", plu: "4817", type: "lb" },
+    { name: "Potato Sweet White", plu: "4091", type: "lb" },
+
+    { name: "Artichoke", plu: "4837", type: "lb" },
+    { name: "Asparagus", plu: "4080", type: "lb" },
+    { name: "Asparagus White", plu: "4523", type: "lb" },
+    { name: "Sprout Brussel", plu: "4551", type: "lb" },
+    { name: "Sprout Brussel Stalk", plu: "4551", type: "lb" },
+    { name: "Avocado Green", plu: "4222", type: "lb" },
+    { name: "Avocado Hass", plu: "4770", type: "lb" },
+    { name: "Broccoli Crowns", plu: "3082", type: "lb" },
+    { name: "Broccolini", plu: "3277", type: "lb" },
+    { name: "Cauliflower", plu: "4079", type: "lb" },
+    { name: "Beets Bunch", plu: "4539", type: "lb" },
+    { name: "Carrot", plu: "4094", type: "lb" },
+    { name: "Ginger Root", plu: "4612", type: "lb" },
+    { name: "Jicama", plu: "4626", type: "lb" },
+    { name: "Malanga", plu: "4644", type: "lb" },
+    { name: "Radish Bunch", plu: "4089", type: "lb" },
+    { name: "Rutabaga", plu: "4747", type: "lb" },
+    { name: "Parsnips", plu: "4672", type: "lb" },
+    { name: "Turnip", plu: "4811", type: "lb" },
+    { name: "Yucca Root", plu: "4819", type: "lb" },
+    { name: "Bean Green", plu: "4066", type: "lb" },
+    { name: "Corn Yellow", plu: "4078", type: "lb" },
+    { name: "Corn White", plu: "4077", type: "lb" },
+    { name: "Corn Bi-Color", plu: "4590", type: "lb" },
+    { name: "Okra", plu: "4655", type: "lb" },
+    { name: "Cucumber", plu: "4597", type: "lb" },
+    { name: "Cucumber English", plu: "4593", type: "lb" },
+    { name: "Pickling Cucumber", plu: "4596", type: "lb" },
+    { name: "Celery", plu: "4070", type: "lb" },
+    { name: "Cilantro Bunch", plu: "4889", type: "lb" },
+    { name: "Parsley", plu: "4672", type: "lb" },
+    { name: "Parsley Italian", plu: "4901", type: "lb" },
+    { name: "Bok Choy", plu: "4545", type: "lb" },
+    { name: "Cabbage", plu: "4069", type: "lb" },
+    { name: "Cabbage Red", plu: "4554", type: "lb" },
+    { name: "Cabbage Napa", plu: "4552", type: "lb" },
+    { name: "Cactus Leaves", plu: "4558", type: "lb" },
+    { name: "Chard Red", plu: "4587", type: "lb" },
+    { name: "Greens Collard", plu: "4614", type: "lb" },
+    { name: "Greens Kale", plu: "4627", type: "lb" },
+    { name: "Greens Mustard", plu: "4616", type: "lb" },
+    { name: "Greens Turnip", plu: "4619", type: "lb" },
+    { name: "Lettuce Iceberg", plu: "4061", type: "lb" },
+    { name: "Radicchio", plu: "4738", type: "lb" },
+    { name: "Rhubarb", plu: "4746", type: "lb" },
+
+
+];
+
+// Elements
+const searchBar = document.getElementById("search-bar");
+const searchResults = document.getElementById("search-results");
+const scannedItemsEl = document.getElementById("scanned-items");
+const refreshBtn = document.getElementById("refresh-btn");
+
+// Load scanned items from localStorage
+let scannedItems = JSON.parse(localStorage.getItem("scannedItems")) || [];
+
+// Render scanned items
+function renderScanned() {
+  scannedItemsEl.innerHTML = "";
+  scannedItems.forEach(item => {
+    const li = document.createElement("li");
+    li.textContent = `${item.name} (${item.plu}) - ${item.quantity} ${item.type}`;
+    scannedItemsEl.appendChild(li);
+  });
+}
+
+// Save scanned items to localStorage
+function saveScanned() {
+  localStorage.setItem("scannedItems", JSON.stringify(scannedItems));
+}
+
+// Search functionality
+searchBar.addEventListener("input", () => {
+  const query = searchBar.value.toLowerCase();
+  searchResults.innerHTML = "";
+
+  const filtered = produceList.filter(item =>
+    item.name.toLowerCase().includes(query) || item.plu.includes(query)
+  );
+
+  filtered.forEach(item => {
+    const li = document.createElement("li");
+    li.textContent = `${item.name} (${item.plu})`;
+    li.addEventListener("click", () => selectItem(item));
+    searchResults.appendChild(li);
+  });
+});
+
+// Select item and input quantity/lbs
+function selectItem(item) {
+  const input = document.createElement("input");
+  input.type = "number";
+  input.min = 1;
+  input.value = 1;
+  input.className = "number-input";
+  input.style.width = "50px"; // fit nicely between buttons
+
+  const incrementBtn = document.createElement("button");
+  incrementBtn.textContent = "+";
+
+  const decrementBtn = document.createElement("button");
+  decrementBtn.textContent = "–";
+
+  const confirmBtn = document.createElement("button");
+  confirmBtn.textContent = "Add";
+
+  const tempLi = document.createElement("li");
+  tempLi.textContent = `${item.name} (${item.plu}) - Quantity: `;
+  tempLi.appendChild(decrementBtn);
+  tempLi.appendChild(input);
+  tempLi.appendChild(incrementBtn);
+  tempLi.appendChild(confirmBtn);
+
+  searchResults.innerHTML = "";
+  searchResults.appendChild(tempLi);
+
+  // Stepper buttons
+  incrementBtn.addEventListener("click", () => {
+    input.value = parseInt(input.value) + 1;
+  });
+
+  decrementBtn.addEventListener("click", () => {
+    if (parseInt(input.value) > 1) {
+      input.value = parseInt(input.value) - 1;
+    }
+  });
+
+  // Confirm add
+  confirmBtn.addEventListener("click", () => {
+    const quantity = parseInt(input.value);
+    if (isNaN(quantity) || quantity < 1) return;
+
+    const existingItem = scannedItems.find(i => i.plu === item.plu);
+    if (existingItem) {
+      existingItem.quantity += quantity;
+    } else {
+      scannedItems.push({ ...item, quantity });
+    }
+
+    saveScanned();
+    renderScanned();
+    searchResults.innerHTML = "";
+    searchBar.value = "";
+  });
+
+  input.focus();
+  input.select(); // so user can type immediately if desired
+}
+
+
+// Refresh session with PIN
+refreshBtn.addEventListener("click", () => {
+  const pin = prompt("Enter PIN to refresh:");
+  if (pin === "0000") {
+    scannedItems = [];
+    saveScanned();
+    renderScanned();
+  } else {
+    alert("Incorrect PIN!");
+  }
+});
+
+const hideBtn = document.getElementById("hide-btn");
+const container = document.querySelector(".container");
+
+hideBtn.addEventListener("click", () => {
+  if (container.style.display === "none") {
+    container.style.display = "flex"; // show again
+    hideBtn.textContent = "Hide";
+  } else {
+    container.style.display = "none"; // hide container
+  }
+});
+
+
+// Initial render
+renderScanned();
+</script>
+
+</body>
+</html>
