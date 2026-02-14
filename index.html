@@ -9,15 +9,22 @@
     font-family: Arial, sans-serif;
     margin: 0;
     padding: 0;
-    background: url('background/1.png') no-repeat center center fixed;
-    background-size: cover;
+    height: 100vh;
     display: flex;
     justify-content: center;
     align-items: center;
-    height: 100vh;
+    /* Gradient background */
+    background: linear-gradient(135deg, #ffd89b, #19547b);
     transition: background 0.5s ease;
   }
 
+  #safe-btn,
+  #hide-btn,
+  .increment-btn,
+.decrement-btn {
+    display: none !important; /* completely hide them */
+    pointer-events: none !important; /* just in case */
+  }
   .container {
     position: relative; /* needed for Safe button positioning */
     background: rgba(255, 255, 255, 0.95);
@@ -30,6 +37,21 @@
     flex-direction: column;
     gap: 20px;
   }
+.add-btn {
+  padding: 12px 25px;
+  font-size: 16px;
+  border-radius: 12px;
+  background: #ff7b7b;
+  color: #fff;
+  border: none;
+  cursor: pointer;
+  margin-left: 10px;
+  transition: background 0.2s ease;
+}
+
+.add-btn:hover {
+  background: #ff5252;
+}
 
   h1 {
     font-size: 20px;
@@ -145,7 +167,7 @@
 
   <button id="safe-btn">Safe</button>
 
-  <h1>Jeremy's List</h1>
+  <h1>Produce Plu </h1>
   <input type="text" id="search-bar" placeholder="Type PLU or name..." autocomplete="off" />
   <ul id="search-results"></ul>
   <h3>Scanned Out</h3>
