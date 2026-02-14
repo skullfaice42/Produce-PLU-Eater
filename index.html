@@ -38,20 +38,21 @@
     gap: 20px;
   }
 .add-btn {
-  padding: 12px 25px;
-  font-size: 16px;
-  border-radius: 12px;
-  background: #ff7b7b;
+  padding: 14px 28px;        /* larger tap area */
+  font-size: 18px;           /* bigger text */
+  border-radius: 12px;       /* rounded like your other buttons */
+  background: #ff7b7b;       /* matches refresh button */
   color: #fff;
   border: none;
   cursor: pointer;
-  margin-left: 10px;
+  margin-left: 10px;         /* spacing from input */
   transition: background 0.2s ease;
 }
 
 .add-btn:hover {
-  background: #ff5252;
+  background: #ff5252;       /* hover effect */
 }
+
 
   h1 {
     font-size: 20px;
@@ -156,6 +157,21 @@
     #hide-btn:hover {
     background: #52ff52;
     }
+.add-btn {
+  padding: 12px 25px;
+  font-size: 16px;
+  border-radius: 12px;
+  background: #ff7b7b;
+  color: #fff;
+  border: none;
+  cursor: pointer;
+  margin-left: 10px;
+  transition: background 0.2s ease;
+}
+
+.add-btn:hover {
+  background: #ff5252;
+}
 
 
 </style>
@@ -216,12 +232,7 @@ safeBtn.addEventListener("click", () => {
 
 // ---------------- Produce List ----------------
 const produceList = [
-  { name: "Organic Avocado", plu: "94281", type: "ea" },
-  { name: "Avocado", plu: "4700", type: "ea" },
-  { name: "Banana", plu: "4011", type: "lb" },
-  { name: "Organic Banana", plu: "94011", type: "lb" },
-  { name: "Mango", plu: "4051", type: "lb" },
-  { name: "Organic Mango", plu: "94051", type: "lb" },
+
 
     { name: "Squash Assorted", plu: "4787", type: "ea" },
     { name: "Squash Mexican Grey", plu: "4786", type: "ea" },
@@ -362,7 +373,7 @@ const produceList = [
     { name: "Sprout Brussel", plu: "4551", type: "lb" },
     { name: "Sprout Brussel Stalk", plu: "4551", type: "lb" },
     { name: "Avocado Green", plu: "4222", type: "lb" },
-    { name: "Avocado Hass", plu: "4770", type: "lb" },
+    { name: "Avocado", plu: "4770", type: "lb" },
     { name: "Broccoli Crowns", plu: "3082", type: "lb" },
     { name: "Broccolini", plu: "3277", type: "lb" },
     { name: "Cauliflower", plu: "4079", type: "lb" },
@@ -453,43 +464,26 @@ function selectItem(item) {
   input.min = 1;
   input.value = 1;
   input.className = "number-input";
-  input.style.width = "50px"; // fit nicely between buttons
-
-  const incrementBtn = document.createElement("button");
-  incrementBtn.textContent = "+";
-
-  const decrementBtn = document.createElement("button");
-  decrementBtn.textContent = "–";
+  input.style.width = "60px"; // fits nicely for typing
 
   const confirmBtn = document.createElement("button");
   confirmBtn.textContent = "Add";
+  confirmBtn.className = "add-btn"; // for styling
 
   const tempLi = document.createElement("li");
-  tempLi.textContent = `${item.name} (${item.plu}) - Quantity: `;
-  tempLi.appendChild(decrementBtn);
+  tempLi.textContent = `${item.name} (${item.plu}) - Enter ${item.type === 'lb' ? 'weight (lbs)' : 'quantity'}: `;
   tempLi.appendChild(input);
-  tempLi.appendChild(incrementBtn);
   tempLi.appendChild(confirmBtn);
 
   searchResults.innerHTML = "";
   searchResults.appendChild(tempLi);
 
-  // Stepper buttons
-  incrementBtn.addEventListener("click", () => {
-    input.value = parseInt(input.value) + 1;
-  });
-
-  decrementBtn.addEventListener("click", () => {
-    if (parseInt(input.value) > 1) {
-      input.value = parseInt(input.value) - 1;
-    }
-  });
-
   // Confirm add
   confirmBtn.addEventListener("click", () => {
-    const quantity = parseInt(input.value);
-    if (isNaN(quantity) || quantity < 1) return;
+    const quantity = parseFloat(input.value);
+    if (isNaN(quantity) || quantity < 1) return; // prevent invalid entries
 
+    // Merge duplicates
     const existingItem = scannedItems.find(i => i.plu === item.plu);
     if (existingItem) {
       existingItem.quantity += quantity;
@@ -504,7 +498,7 @@ function selectItem(item) {
   });
 
   input.focus();
-  input.select(); // so user can type immediately if desired
+  input.select(); // so typing immediately overwrites the default 1
 }
 
 
