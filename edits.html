@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Edits / Changelog</title>
+
+<style>
+  body {
+    font-family: Arial, sans-serif;
+    background: linear-gradient(135deg, #19547b, #ffd89b);
+    margin: 0;
+    padding: 20px;
+    color: #222;
+
+    
+    font-family: Arial, sans-serif;
+    height: 100vh;
+    /* display: flex; */
+    /* justify-content: center; */
+    /* align-items: center; */
+    background: linear-gradient(135deg, #ffd89b, #19547b);
+    transition: background 0.5s ease;
+  }
+
+  .container {
+    max-width: 700px;
+    margin: auto;
+    background: rgba(255,255,255,0.95);
+    border-radius: 20px;
+    padding: 25px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+  }
+
+  h1 {
+    text-align: center;
+    margin-top: 0;
+  }
+
+  .commit {
+    background: #f4f4f4;
+    border-radius: 12px;
+    padding: 12px 15px;
+    margin-bottom: 12px;
+    transition: transform 0.15s ease;
+  }
+
+  .commit:hover {
+    transform: scale(1.02);
+    background: #e8f7ff;
+  }
+
+  .message {
+    font-weight: bold;
+    margin-bottom: 6px;
+  }
+
+  .meta {
+    font-size: 13px;
+    color: #555;
+  }
+
+  .back-btn {
+    display: block;
+    margin: 20px auto 0;
+    padding: 10px 18px;
+    border: none;
+    border-radius: 50px;
+    background: #ff7b7b;
+    color: white;
+    font-size: 15px;
+    cursor: pointer;
+  }
+
+  .back-btn:hover {
+    background: #ff5252;
+  }
+</style>
+</head>
+
+<body>
+
+<div class="container">
+  <h1>Recent Edits</h1>
+
+  <div id="commits">Loading updates...</div>
+
+  <button class="back-btn" onclick="window.location.href='index.html'">
+    Back to PLU Tool
+  </button>
+</div>
+
+<script>
+const commitsEl = document.getElementById("commits");
+
+fetch("https://api.github.com/repos/skullfaice42/Produce-PLU-Eater/commits")
+  .then(res => res.json())
+  .then(data => {
+    commitsEl.innerHTML = "";
+
+    data.slice(0, 20).forEach(commit => {
+
+      const fullMessage = commit.commit.message;
+
+      // Split title and description
+      const parts = fullMessage.split("\n\n");
+      const title = parts[0];
+      const description = parts[1] || "";
+
+      const author = commit.commit.author.name;
+      const date = new Date(commit.commit.author.date);
+
+      const div = document.createElement("div");
+      div.className = "commit";
+
+      div.innerHTML = `
+        <div class="message">${title}</div>
+        <div>${description}</div>
+        <div class="meta">
+          By ${author} — ${date.toLocaleString()}
+        </div>
+      `;
+
+      commitsEl.appendChild(div);
+    });
+  })
+  .catch(err => {
+    commitsEl.innerHTML = "Failed to load updates.";
+    console.error(err);
+  });
+</script>
+
+</body>
+</html>
